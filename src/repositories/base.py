@@ -23,21 +23,5 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def bulk_add(self, *args, **kwargs) -> list[ModelType]:
-        raise NotImplementedError
-
-    @abstractmethod
     async def delete(self, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def update_usage_count(self, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def create_log_record(self, *args, **kwargs) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_logs(self, *args, **kwargs) -> list[ModelType]:
         raise NotImplementedError

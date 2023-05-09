@@ -2,7 +2,7 @@ import os
 from functools import lru_cache
 from pathlib import Path
 
-import yaml  # type: ignore
+import yaml
 from pydantic import BaseSettings
 
 __all__ = (
@@ -20,6 +20,8 @@ class App(BaseSettings):
     host: str
     port: int
     debug: bool
+    jwt_secret: str
+    jwt_lifetime: int
 
 
 class Postgres(BaseSettings):

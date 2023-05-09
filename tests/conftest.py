@@ -9,8 +9,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.db.db import async_engine
 from src.main import app
-from src.models import ShortUrl
-from tests.factories.short_url import ShortUrlFactory
 
 
 @pytest.fixture(scope="session")
@@ -35,21 +33,3 @@ async def async_session() -> AsyncSession:
     )
     yield session
     await async_engine.dispose()
-
-
-@pytest_asyncio.fixture(scope="function")
-async def short_url_instance(async_session) -> ShortUrl:
-    async with async_session() as session:
-        instance = ShortUrlFactory()
-        session.add(instance)
-        await session.commit()
-    yield instance
-
-
-@pytest_asyncio.fixture(scope="function")
-async def removed_short_url_instance(async_session) -> ShortUrl:
-    async with async_session() as session:
-        instance = ShortUrlFactory(is_removed=True)
-        session.add(instance)
-        await session.commit()
-    yield instance

@@ -16,18 +16,6 @@ repos:
       - id: check-case-conflict  # проверяет файлы, которые могут конфликтовать в файловых системах без учета регистра.
       - id: check-merge-conflict  # проверяет файлы, содержащие конфликтные строки слияния.
 
-  - repo: local
-    hooks:
-      - id: pytest
-        name: pytest
-        language: python
-        entry: make localtest
-        pass_filenames: false
-        always_run: true
-        verbose: true
-        stages:
-          - push
-
   # Отсортировывает импорты в проекте
   - repo: https://github.com/pycqa/isort
     rev: 5.12.0

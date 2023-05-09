@@ -26,6 +26,7 @@ def create_app() -> FastAPI:
         openapi_url=f"{settings.app.api_doc_prefix}/openapi.json",
         debug=settings.app.debug,
         default_response_class=ORJSONResponse,
+        authenticated_route=["authenticated-route"],
     )
     # Middlewares
     current_app.add_middleware(BaseHTTPMiddleware, dispatch=add_process_time_header)
