@@ -1,0 +1,15 @@
+app:
+  project_name: async-python-sprint-5
+  description: sprint 5 in Async Python Course in Yandex Praktikum
+  version: 0.1.0
+  api_doc_prefix: /api/v1
+  host: 0.0.0.0
+  port: 8000
+  debug: true
+
+postgres:
+  host: sprint_5_postgres_db
+  port: 5432
+  dbname: sprint_5
+  user: sprint_5
+  password: sprint_5

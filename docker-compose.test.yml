@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  test_sprint_5_app:
+    container_name: test_sprint_5_app
+    build:
+      context: .
+      dockerfile: DockerfileTest
+    environment:
+      CONFIG_FILE: "config.test.yaml"
+    command: >
+      sh -c "alembic -c ./alembic.ini upgrade head && pytest . -vv"
+    networks:
+      - test_sprint_5_network
+    depends_on:
+      test_sprint_5_postgres_db:
+        condition: service_healthy
+
+  test_sprint_5_postgres_db:
+    container_name: test_sprint_5_postgres_db
+    image: postgres:15.1-alpine
+    environment:
+      - POSTGRES_DB=test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+    expose:
+      - 5432
+    networks:
+      - test_sprint_5_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U test" ]
+      interval: 5s
+      timeout: 20s
+      retries: 100
+
+networks:
+  test_sprint_5_network:
+    name: test_sprint_5_network

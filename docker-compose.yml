@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  sprint_5_app:
+    container_name: sprint_5_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      CONFIG_FILE: "config.yaml"
+    entrypoint: "./entrypoint.sh"
+    volumes:
+      - ./src:/app/src/
+    networks:
+      - sprint_5_network
+    ports:
+      - "${APP_PUBLIC_PORT:-8000}:8000"
+    depends_on:
+      sprint_5_postgres_db:
+        condition: service_healthy
+
+  sprint_5_postgres_db:
+    container_name: sprint_5_postgres_db
+    image: postgres:15.1-alpine
+    volumes:
+      - sprint_5_postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: sprint_5
+      POSTGRES_USER: sprint_5
+      POSTGRES_PASSWORD: sprint_5
+    expose:
+      - 5432
+    ports:
+      - "${DB_PUBLIC_PORT:-5432}:5432"
+    networks:
+      - sprint_5_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sprint_5" ]
+      interval: 5s
+      timeout: 20s
+      retries: 100
+
+networks:
+  sprint_5_network:
+    name: sprint_5_network
+
+volumes:
+  sprint_5_postgres_data:
+    driver: local
