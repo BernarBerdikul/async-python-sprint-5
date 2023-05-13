@@ -15,13 +15,13 @@ class AbstractRepository(ABC):
     session: AsyncSession
 
     @abstractmethod
-    async def get(self, *args, **kwargs) -> ModelType:
+    async def get(self, *args, **kwargs) -> ModelType | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    async def all(self, *args, **kwargs) -> list[ModelType]:
         raise NotImplementedError
 
     @abstractmethod
     async def add(self, *args, **kwargs) -> ModelType:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def delete(self, *args, **kwargs) -> None:
         raise NotImplementedError

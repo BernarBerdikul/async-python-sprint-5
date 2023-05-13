@@ -6,6 +6,7 @@ services:
     image: minio/minio
     volumes:
       - sprint_5_minio_data:/data
+      - ./docker/minio/cors-config.json:/root/.minio/cors/config.json
     expose:
       - 9000
       - 9001

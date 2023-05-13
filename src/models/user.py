@@ -9,6 +9,7 @@ from fastapi_users.authentication import (
 )
 from fastapi_users_db_sqlmodel import SQLModelBaseUserDB, SQLModelUserDatabaseAsync
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import Relationship
 
 from src import settings
 from src.db.db import get_async_session
@@ -16,6 +17,7 @@ from src.db.db import get_async_session
 __all__ = (
     "User",
     "fastapi_users",
+    "current_active_user",
     "auth_backend",
 )
 
@@ -23,7 +25,15 @@ SECRET = settings.app.jwt_secret
 
 
 class User(SQLModelBaseUserDB, table=True):
-    ...
+    """User model in database."""
+
+    files: list["UserFile"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={
+            "uselist": True,
+            "cascade": "all, delete",
+        },
+    )
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):

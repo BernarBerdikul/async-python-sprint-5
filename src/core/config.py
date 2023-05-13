@@ -13,6 +13,7 @@ __all__ = (
 
 
 class App(BaseSettings):
+    domain: str
     project_name: str
     description: str
     version: str

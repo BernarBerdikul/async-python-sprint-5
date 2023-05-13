@@ -1,4 +1,5 @@
 app:
+  domain: localhost
   project_name: async-python-sprint-5
   description: sprint 5 in Async Python Course in Yandex Praktikum
   version: 0.1.0

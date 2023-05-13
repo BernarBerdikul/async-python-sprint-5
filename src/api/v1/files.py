@@ -1,6 +1,17 @@
+import http
+import uuid as uuid_pkg
+
 from fastapi import APIRouter, Depends, File, UploadFile
 
-from src.db.minio import get_minio_client
+from src import settings
+from src.models import User
+from src.models.user import current_active_user
+from src.schemas.user_file import (
+    DownloadUserFileLink,
+    UserFileItemResponse,
+    UserFileListResponse,
+)
+from src.services import UserFileService, get_user_file_service
 
 router = APIRouter(
     prefix="/files",
@@ -8,33 +19,48 @@ router = APIRouter(
 )
 
 
-# @router.get(
-#     path="/",
-#     response_model=ShortUrlDetail,
-#     summary="Get user's files",
-#     status_code=http.HTTPStatus.OK,
-# )
-# async def create_short_url(
-#     *,
-#     data: ShortUrlCreate,
-#     short_url_service: ShortUrlService = Depends(get_short_url_service),
-# ) -> ShortUrlDetail:
-#     """Create short url."""
-#     return await short_url_service.create(data=data)
+@router.get(
+    path="/",
+    response_model=UserFileListResponse,
+    summary="Get user's files",
+    status_code=http.HTTPStatus.OK,
+)
+async def get_files(
+    user: User = Depends(current_active_user),
+    user_file_service: UserFileService = Depends(get_user_file_service),
+) -> UserFileListResponse:
+    """Get user's files."""
+    return await user_file_service.get_all(user_id=user.id)
 
 
-@router.post("/upload")
+@router.get(
+    path="/{file_id}/download/",
+    response_model=DownloadUserFileLink,
+    summary="Download file",
+    status_code=http.HTTPStatus.OK,
+)
+async def download_file(
+    file_id: uuid_pkg.UUID,
+    user: User = Depends(current_active_user),
+    user_file_service: UserFileService = Depends(get_user_file_service),
+) -> DownloadUserFileLink:
+    """Return download file link."""
+    user_file = await user_file_service.get(user_id=user.id, file_id=file_id)
+    return DownloadUserFileLink(
+        url=f"{settings.app.domain}:{settings.minio.port}/{user.id}/{user_file.path}"
+    )
+
+
+@router.post(
+    path="/upload/",
+    response_model=UserFileItemResponse,
+    summary="Upload file",
+    status_code=http.HTTPStatus.CREATED,
+)
 async def upload_file(
     file: UploadFile = File(...),
-    minio_client=Depends(get_minio_client),
-):
-    # Create bucket
-    await minio_client.make_bucket("my-bucket")
-    # Save the uploaded file to Minio
-    await minio_client.put_object(
-        bucket_name="my-bucket",
-        object_name=file.filename,
-        data=file.file,
-        length=file.size,
-    )
-    return {"message": "File uploaded successfully"}
+    user: User = Depends(current_active_user),
+    user_file_service: UserFileService = Depends(get_user_file_service),
+) -> UserFileItemResponse:
+    """Upload file."""
+    return await user_file_service.create(user_id=user.id, file=file)
