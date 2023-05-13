@@ -1,23 +1,28 @@
 version: "3.9"
 
 services:
-  sprint_5_app:
-    container_name: sprint_5_app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      CONFIG_FILE: "config.yaml"
-    entrypoint: "./entrypoint.sh"
+
+  minio:
+    image: minio/minio
     volumes:
-      - ./src:/app/src/
+      - sprint_5_minio_data:/data
+    expose:
+      - 9000
+      - 9001
+    ports:
+      - "${MINIO_PUBLIC_PORT:-9000}:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9001/minio/health/live" ]
+      interval: 5s
+      timeout: 20s
+      retries: 100
+    command: server --console-address :9001 /data
     networks:
       - sprint_5_network
-    ports:
-      - "${APP_PUBLIC_PORT:-8000}:8000"
-    depends_on:
-      sprint_5_postgres_db:
-        condition: service_healthy
 
   sprint_5_postgres_db:
     container_name: sprint_5_postgres_db
@@ -40,10 +45,32 @@ services:
       timeout: 20s
       retries: 100
 
+  sprint_5_app:
+    container_name: sprint_5_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      CONFIG_FILE: "config.yaml"
+    entrypoint: "./entrypoint.sh"
+    volumes:
+      - ./src:/app/src/
+    networks:
+      - sprint_5_network
+    ports:
+      - "${APP_PUBLIC_PORT:-8000}:8000"
+    depends_on:
+      sprint_5_postgres_db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
 networks:
   sprint_5_network:
     name: sprint_5_network
 
 volumes:
   sprint_5_postgres_data:
+    driver: local
+  sprint_5_minio_data:
     driver: local

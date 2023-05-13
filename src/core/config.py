@@ -41,9 +41,17 @@ class Postgres(BaseSettings):
         return f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{dbname}"
 
 
+class Minio(BaseSettings):
+    host: str
+    port: int
+    access_key: str
+    secret_key: str
+
+
 class Settings(BaseSettings):
     app: App
     postgres: Postgres
+    minio: Minio
 
 
 config_file = os.getenv("CONFIG_FILE", "config.local.yaml")

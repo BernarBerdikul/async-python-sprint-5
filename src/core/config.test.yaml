@@ -15,3 +15,9 @@ postgres:
   dbname: test
   user: test
   password: test
+
+minio:
+  host: minio
+  port: 9000
+  access_key: test
+  secret_key: test
