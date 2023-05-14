@@ -12,7 +12,7 @@ class UserGet(BaseUser):
 
 
 class UserCreate(BaseUserCreate):
-    password: str
+    ...
 
     class Config:
         schema_extra = {

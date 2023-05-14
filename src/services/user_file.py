@@ -53,7 +53,7 @@ class UserFileService(ServiceMixin):
     async def create(self, user_id: uuid_pkg.UUID, file: File) -> UserFileItemResponse:
         """Create short url."""
         bucket_name = f"{user_id}"
-        path = f"files/{file.filename.replace(' ', '_')}"
+        path = f"files/{file.filename.replace(' ', '_')}-{uuid_pkg.uuid4()}"
         # Create bucket if not exists
         if not await self.minio_client.bucket_exists(bucket_name):
             await self.minio_client.make_bucket(bucket_name)

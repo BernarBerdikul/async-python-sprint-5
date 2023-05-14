@@ -20,5 +20,5 @@ postgres:
 minio:
   host: minio
   port: 9000
-  access_key: test
-  secret_key: test
+  access_key: testminio
+  secret_key: testminio123

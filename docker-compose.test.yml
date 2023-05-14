@@ -1,6 +1,28 @@
 version: "3.8"
 
 services:
+  minio:
+    image: minio/minio
+    volumes:
+      - ./docker/minio/cors-config.json:/root/.minio/cors/config.json
+    expose:
+      - 9000
+      - 9001
+    ports:
+      - "${MINIO_PUBLIC_PORT:-9000}:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ACCESS_KEY: testminio
+      MINIO_SECRET_KEY: testminio123
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9001/minio/health/live" ]
+      interval: 5s
+      timeout: 20s
+      retries: 100
+    command: server --console-address :9001 /data
+    networks:
+      - test_sprint_5_network
+
   test_sprint_5_app:
     container_name: test_sprint_5_app
     build:
@@ -14,6 +36,8 @@ services:
       - test_sprint_5_network
     depends_on:
       test_sprint_5_postgres_db:
+        condition: service_healthy
+      minio:
         condition: service_healthy
 
   test_sprint_5_postgres_db:

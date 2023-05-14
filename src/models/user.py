@@ -1,7 +1,12 @@
 import uuid
 
 from fastapi import Depends, Request
-from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
+from fastapi_users import (
+    BaseUserManager,
+    FastAPIUsers,
+    InvalidPasswordException,
+    UUIDIDMixin,
+)
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
@@ -20,6 +25,8 @@ __all__ = (
     "current_active_user",
     "auth_backend",
 )
+
+from src.schemas.user import UserCreate
 
 SECRET = settings.app.jwt_secret
 
@@ -56,6 +63,18 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         self, user: User, token: str, request: Request | None = None
     ):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
+
+    async def validate_password(
+        self,
+        password: str,
+        user: UserCreate | User,
+    ) -> None:
+        if len(password) < 8:
+            raise InvalidPasswordException(
+                reason="Password should be at least 8 characters"
+            )
+        if user.email in password:
+            raise InvalidPasswordException(reason="Password should not contain e-mail")
 
 
 async def get_user_manager(user_db: SQLModelUserDatabaseAsync = Depends(get_user_db)):
